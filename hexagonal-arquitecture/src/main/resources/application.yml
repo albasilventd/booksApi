@@ -1,0 +1,9 @@
+spring:
+  data:
+    mongodb:
+      database: crud-demo-books
+      uri: mongodb://localhost:27017/crud-demo-books
+  application:
+    name: api-books-MongoDB
+server:
+  port: 8081
