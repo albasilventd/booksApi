@@ -65,23 +65,22 @@ public class BookUpdateCaseImpl implements BookUpdateCase {
                     if (bookPayload.getTitle() != null) {
                         authorBook.setTitle(bookPayload.getTitle());
                     }
-                    // Si el autor en bookPayload no es nulo, actualiza el autor
+    
                     if (bookPayload.getAuthor() != null) {
                         authorBook.setAuthor(bookPayload.getAuthor());
                     }
-                    // Si el género en bookPayload no es nulo, actualiza el género
+                    
                     if (bookPayload.getGenre() != null) {
                         authorBook.setGenre(bookPayload.getGenre());
                     }
-                    // Si la descripción en bookPayload no es nulo, actualiza la descripción
+                    
                     if (bookPayload.getDescription() != null) {
                         authorBook.setDescription(bookPayload.getDescription());
                     }
-                    // Si el rate en bookPayload es diferente de cero, actualiza el rate
+                    
                     if (bookPayload.getRate() != 0) {
                         authorBook.setRate(bookPayload.getRate());
                     }
-                    // Guarda el autor actualizado en la base de datos
                     authorsRepository.save(bookAuthor);
                     break;
                 }

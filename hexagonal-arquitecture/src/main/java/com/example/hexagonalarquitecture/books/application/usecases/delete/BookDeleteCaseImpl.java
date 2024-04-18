@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.hexagonalarquitecture.authors.domain.model.Author;
+import com.example.hexagonalarquitecture.authors.infrastructure.repository.AuthorsRepository;
 import com.example.hexagonalarquitecture.books.domain.model.Book;
 import com.example.hexagonalarquitecture.books.domain.ports.in.BookDeleteCase;
 import com.example.hexagonalarquitecture.books.domain.ports.out.BookResponse;
@@ -18,6 +20,8 @@ import com.example.hexagonalarquitecture.books.infrastructure.repository.BookRep
 public class BookDeleteCaseImpl implements BookDeleteCase {
     @Autowired
     private BookRepository booksRepository;
+    @Autowired
+    private AuthorsRepository authorsRepository;
     
     public ResponseEntity<BookResponse> deleteBook(String id) {
         Optional<Book> bookById = booksRepository.findById(id);
@@ -25,6 +29,20 @@ public class BookDeleteCaseImpl implements BookDeleteCase {
 
         if (book != null) {
             booksRepository.deleteById(id);
+
+            //Lo borramos en la lista de autores
+            String authorName = book.getAuthor();
+            Author author = authorsRepository.findByName(authorName);
+            List<Book> authorBooks = author.getBooks();
+
+            // Recorro el array y borro el libro
+            for (Book authorBook : authorBooks) {
+                if (authorBook.getId().equalsIgnoreCase(id)) {
+                    authorBooks.remove(authorBook);
+                    authorsRepository.save(author);
+                    break;
+                }
+            }
 
             // Creamos la respuesta
             List<Book> bookList = new ArrayList<>();
