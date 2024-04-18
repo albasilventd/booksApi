@@ -65,25 +65,47 @@ public class BookUpdateCaseImpl implements BookUpdateCase {
                     if (bookPayload.getTitle() != null) {
                         authorBook.setTitle(bookPayload.getTitle());
                     }
-    
+
                     if (bookPayload.getAuthor() != null) {
                         authorBook.setAuthor(bookPayload.getAuthor());
+                        authorBooks.remove(authorBook);
+                        // Añadir o crear el nuevo libro en la base de datos de autores
+                        if (!authorsRepository.existsByName(bookPayload.getAuthor())) {
+                            List<Book> newBookList = new ArrayList<>();
+                            newBookList.add(authorBook);
+                            Author author = new Author(bookPayload.getAuthor(), newBookList);
+                            authorsRepository.save(author);
+                        } else {
+                            Author existingAuthor = authorsRepository.findByName(bookPayload.getAuthor());
+                            String newId = existingAuthor.getId();
+                            if (existingAuthor != null) {
+                                existingAuthor.setId(newId);
+                                existingAuthor.getBooks().add(authorBook);
+                                authorsRepository.save(existingAuthor);
+                            }
+                        }
                     }
-                    
+
                     if (bookPayload.getGenre() != null) {
                         authorBook.setGenre(bookPayload.getGenre());
                     }
-                    
+
                     if (bookPayload.getDescription() != null) {
                         authorBook.setDescription(bookPayload.getDescription());
                     }
-                    
+
                     if (bookPayload.getRate() != 0) {
                         authorBook.setRate(bookPayload.getRate());
                     }
                     authorsRepository.save(bookAuthor);
-                    break;
                 }
+
+                break;
+            }
+
+            // Borrar el autor si su lista se queda vacia
+            if (bookAuthor.getBooks().size() == 0) {
+                authorsRepository.delete(bookAuthor);
             }
 
             // Creamos la respuesta
