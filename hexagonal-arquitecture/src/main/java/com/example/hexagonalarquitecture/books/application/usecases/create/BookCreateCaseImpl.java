@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.hexagonalarquitecture.authors.domain.model.Author;
+import com.example.hexagonalarquitecture.authors.infrastructure.repository.AuthorsRepository;
 import com.example.hexagonalarquitecture.books.domain.model.Book;
 import com.example.hexagonalarquitecture.books.domain.ports.in.BookCreateCase;
 import com.example.hexagonalarquitecture.books.domain.ports.out.BookResponse;
@@ -17,6 +19,8 @@ import com.example.hexagonalarquitecture.books.infrastructure.repository.BookRep
 public class BookCreateCaseImpl implements BookCreateCase {
     @Autowired
     private BookRepository booksRepository;
+    @Autowired
+    private AuthorsRepository authorsRepository;
     
     public ResponseEntity<BookResponse> createBook(Book book) {
         String title = book.getTitle();
@@ -32,6 +36,26 @@ public class BookCreateCaseImpl implements BookCreateCase {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         } else {
             Book newBook = booksRepository.save(book);
+
+            //Creamos un nuevo autor y añadimos el libro a su array de libros
+
+            if (newBook.getAuthor()!=null){
+                String authorName = book.getAuthor();
+                    if(!authorsRepository.existsByName(authorName)){
+                        List <Book> authorBooks = new ArrayList<>();
+                        authorBooks.add(book);
+                        Author author = new Author(book.getAuthor(), authorBooks);
+                        authorsRepository.save(author);
+                    } else {
+                        Author existingAuthor = authorsRepository.findByName(authorName);
+                        String id = existingAuthor.getId();
+                        if (existingAuthor != null) {
+                            existingAuthor.setId(id);
+                            existingAuthor.getBooks().add(book);
+                            authorsRepository.save(existingAuthor);
+                        }
+                    }
+            }
 
             // Creamos la respuesta
             List<Book> bookList = new ArrayList<>();

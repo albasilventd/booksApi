@@ -1,4 +1,4 @@
-package com.example.hexagonalarquitecture.books;
+package com.example.hexagonalarquitecture;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
