@@ -9,16 +9,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.hexagonalarquitecture.authors.domain.model.Author;
+import com.example.hexagonalarquitecture.authors.infrastructure.repository.AuthorsRepository;
 import com.example.hexagonalarquitecture.books.domain.model.Book;
 import com.example.hexagonalarquitecture.books.domain.ports.in.BookUpdateCase;
 import com.example.hexagonalarquitecture.books.domain.ports.out.BookResponse;
 import com.example.hexagonalarquitecture.books.infrastructure.repository.BookRepository;
 
 @Service
-public class BookUpdateCaseImpl implements BookUpdateCase{
+public class BookUpdateCaseImpl implements BookUpdateCase {
     @Autowired
     private BookRepository booksRepository;
-    
+    @Autowired
+    private AuthorsRepository authorsRepository;
+
     public ResponseEntity<BookResponse> updateBook(String id, Book bookPayload) {
         Optional<Book> bookById = booksRepository.findById(id);
 
@@ -48,6 +52,40 @@ public class BookUpdateCaseImpl implements BookUpdateCase{
             }
 
             booksRepository.save(bookPayload);
+
+            // Actualizamos el libro en el array de autores
+
+            String authorName = beforeBook.getAuthor();
+            Author bookAuthor = authorsRepository.findByName(authorName);
+            List<Book> authorBooks = bookAuthor.getBooks();
+
+            // Recorro el array y encuentro el libro a actualizar:
+            for (Book authorBook : authorBooks) {
+                if (authorBook.getId().equalsIgnoreCase(id)) {
+                    if (bookPayload.getTitle() != null) {
+                        authorBook.setTitle(bookPayload.getTitle());
+                    }
+                    // Si el autor en bookPayload no es nulo, actualiza el autor
+                    if (bookPayload.getAuthor() != null) {
+                        authorBook.setAuthor(bookPayload.getAuthor());
+                    }
+                    // Si el género en bookPayload no es nulo, actualiza el género
+                    if (bookPayload.getGenre() != null) {
+                        authorBook.setGenre(bookPayload.getGenre());
+                    }
+                    // Si la descripción en bookPayload no es nulo, actualiza la descripción
+                    if (bookPayload.getDescription() != null) {
+                        authorBook.setDescription(bookPayload.getDescription());
+                    }
+                    // Si el rate en bookPayload es diferente de cero, actualiza el rate
+                    if (bookPayload.getRate() != 0) {
+                        authorBook.setRate(bookPayload.getRate());
+                    }
+                    // Guarda el autor actualizado en la base de datos
+                    authorsRepository.save(bookAuthor);
+                    break;
+                }
+            }
 
             // Creamos la respuesta
             List<Book> bookList = new ArrayList<>();
