@@ -44,6 +44,11 @@ public class BookDeleteCaseImpl implements BookDeleteCase {
                 }
             }
 
+            //Si la lista está vacia, borramos el autor
+            if (author.getBooks().isEmpty()){
+                authorsRepository.delete(author);
+            }
+
             // Creamos la respuesta
             List<Book> bookList = new ArrayList<>();
             bookList.add(book);
