@@ -26,12 +26,12 @@ public class AuthorGetByIdImpl implements AuthorGetByIdCase {
         // Creamos la respuesta
         if (author != null) {
             List<Author> bookList = Collections.singletonList(author);
-            String message = "El libro se ha cargado con éxito";
+            String message = "El autor se ha cargado con éxito";
             AuthorResponse response = new AuthorResponse(bookList, "Success", "200", message);
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
         } else {
-            String message = "No se han encontrado libros con ese Id";
+            String message = "No se han encontrado autores con ese Id";
             AuthorResponse response = new AuthorResponse(List.of(), "Not Found", "404", message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
